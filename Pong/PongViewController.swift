@@ -38,6 +38,12 @@ class PongViewController: UIViewController {
 
     /// Это переменная отображения лэйбла со счетом игрока
     @IBOutlet var userScoreLabel: UILabel!
+    
+    /// Это переменная отображения лэйбла со счетом компьютера
+    @IBOutlet var enemyScoreLabel: UILabel!
+    
+    ///Это переменная отображения лэйбла с результатом игры
+    @IBOutlet var resultLabel: UILabel!
 
     // MARK: - Instance Properties
 
@@ -101,7 +107,14 @@ class PongViewController: UIViewController {
             updateUserScoreLabel()
         }
     }
-
+    
+    /// Эта переменная хранит счет компьютера
+    var enemyScore: Int = 0 {
+        didSet {
+            /// При каждом обновлении значения переменной - обновляем текст в лэйбле
+            updateEnemyScoreLabel()
+        }
+    }
     // MARK: - Instance Methods
 
     /// Эта функция запускается 1 раз когда представление экрана загрузилось
@@ -124,7 +137,7 @@ class PongViewController: UIViewController {
         Удали два слэша в начале 127-ой строки и запусти проект, чтобы игра заработала!
         */
 
-        //configurePongGame()
+        configurePongGame()
     }
 
     /// Эта функция вызывается, когда экран PongViewController повяился на экране телефона
@@ -167,6 +180,10 @@ class PongViewController: UIViewController {
     /// - указывает что при следующем нажатии мяч должен запуститься
     ///
     private func configurePongGame() {
+        
+        resultLabel.isHidden = true
+        // NOTE: Настраиваем лэйбл со счетом компьютера
+        updateEnemyScoreLabel()
         // NOTE: Настраиваем лэйбл со счетом игрока
         updateUserScoreLabel()
 
@@ -186,5 +203,41 @@ class PongViewController: UIViewController {
 
     private func updateUserScoreLabel() {
         userScoreLabel.text = "\(userScore)"
+        if userScore == 5 {winner(winUserOrEnemy: "User")}
+    }
+    
+    private func updateEnemyScoreLabel() {
+        enemyScoreLabel.text = "\(enemyScore)"
+        if enemyScore == 5 {winner(winUserOrEnemy: "Enemy")}
+    }
+    
+    private func winner(winUserOrEnemy: String) {
+        switch winUserOrEnemy {
+        case "User":
+            resultLabel.text = "You win!"
+        case "Enemy":
+            resultLabel.text = "You lose!"
+        default:
+            print("???")
+        }
+        
+        self.shouldLaunchBallOnNextTap = false
+        ballView.isHidden = true
+        lineView.isHidden = true
+        userPaddleView.isHidden = true
+        enemyPaddleView.isHidden = true
+        
+        resultLabel.isHidden = false
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            
+            self.resultLabel.isHidden = true
+            self.shouldLaunchBallOnNextTap = true
+            self.ballView.isHidden = false
+            self.userScore = 0
+            self.enemyScore = 0
+            self.userPaddleView.isHidden = false
+            self.enemyPaddleView.isHidden = false
+        }
     }
 }
